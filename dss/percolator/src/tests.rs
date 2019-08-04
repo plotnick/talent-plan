@@ -86,6 +86,8 @@ fn init(num_clinet: usize) -> (Network, Vec<Client>, Arc<CommitHooks>) {
 }
 
 #[test]
+// FIXME: This test should be stronger. It should also verify
+// that the timestamps are monotonically increasing.
 fn test_get_timestamp_under_unreliable_network() {
     let (rn, clients, _) = init(3);
     let mut children = vec![];

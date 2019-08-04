@@ -1,7 +1,10 @@
+#![feature(integer_atomics)]
+
 use crate::msg::*;
 use crate::service::*;
 use crate::*;
 
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -13,16 +16,20 @@ use labrpc::RpcFuture;
 // Otherwise, the operation should back off.
 const TTL: u64 = Duration::from_millis(100).as_nanos() as u64;
 
+// The timestamp increment.
+const INC: u64 = 1;
+
 #[derive(Clone, Default)]
 pub struct TimestampOracle {
-    // You definitions here if needed.
+    timestamp: Arc<AtomicU64>,
 }
 
 impl timestamp::Service for TimestampOracle {
-    // example get_timestamp RPC handler.
+    // Box & return the current timestamp, and atomically increment the counter.
     fn get_timestamp(&self, _: TimestampRequest) -> RpcFuture<TimestampResponse> {
-        // Your code here.
-        unimplemented!()
+        let timestamp = self.timestamp.fetch_add(INC, Ordering::SeqCst);
+        let response = TimestampResponse {timestamp: timestamp};
+        Box::new(futures::future::result(Ok(response)))
     }
 }
 
