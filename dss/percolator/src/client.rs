@@ -1,9 +1,9 @@
-use crate::service::{TSOClient, TransactionClient};
 use crate::msg::{TimestampRequest, TimestampResponse};
+use crate::service::{TSOClient, TransactionClient};
 
+use futures::Future;
 use std::thread;
 use std::time::Duration;
-use futures::Future;
 
 use labrpc::*;
 
@@ -30,7 +30,10 @@ pub struct Client {
 impl Client {
     /// Creates a new Client.
     pub fn new(tso_client: TSOClient, txn_client: TransactionClient) -> Client {
-        Client { tso_client, txn_client }
+        Client {
+            tso_client,
+            txn_client,
+        }
     }
 
     /// Gets a timestamp from a TSO.
@@ -41,7 +44,7 @@ impl Client {
         for i in 0..RETRY_TIMES {
             match self.tso_client.get_timestamp(&TimestampRequest {}).wait() {
                 Ok(TimestampResponse { timestamp }) => return Ok(timestamp),
-                Err(_) => backoff(i)
+                Err(_) => backoff(i),
             };
         }
         // RETRY_TIMES exceeded.

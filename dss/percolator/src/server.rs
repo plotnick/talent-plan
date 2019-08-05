@@ -4,8 +4,8 @@ use crate::msg::*;
 use crate::service::*;
 use crate::*;
 
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -28,7 +28,9 @@ impl timestamp::Service for TimestampOracle {
     // Box & return the current timestamp, and atomically increment the counter.
     fn get_timestamp(&self, _: TimestampRequest) -> RpcFuture<TimestampResponse> {
         let timestamp = self.timestamp.fetch_add(INC, Ordering::SeqCst);
-        let response = TimestampResponse {timestamp: timestamp};
+        let response = TimestampResponse {
+            timestamp: timestamp,
+        };
         Box::new(futures::future::result(Ok(response)))
     }
 }
